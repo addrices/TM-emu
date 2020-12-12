@@ -60,3 +60,27 @@ void erase_blank(string& str){
     }
     return;
 }
+
+void erase_xlast(string& str,string a){
+    size_t start = 0;
+    size_t index = str.find_first_of(a,start);
+}
+
+void erase_ht_blank(string& str){
+    for(int i = 0;i < str.length();i++){
+        if(str[i] == ' '){
+            str.erase(i,1);
+            i--;
+        } else{
+            break;
+        }
+    }
+    for(int i = str.length();i >= 0;i--){
+        if(str[i] == ' '){
+            str.erase(i,1);
+        } else {
+            break;
+        }
+    }
+    return;
+}

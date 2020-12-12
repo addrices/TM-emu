@@ -32,22 +32,22 @@ public:
 // read delta function's parameters
         OldState = info[0];
         for(int i = 0;i < info[1].length();i++){
-            if(info[1][i] == ',' || info[1][i] == ';' || info[1][i] == '{' || info[1][i] == '}' || info[1][i] == ' ' || info[1][i] == '*' || info[1][i] == '_'){
-                LOGF("[Line %d],input symbol is error",LineNum);
+            if(info[1][i] == ',' || info[1][i] == ';' || info[1][i] == '{' || info[1][i] == '}' || info[1][i] == ' ' || info[1][i] == '*'){
+                LOGF("[Line %d],input symbol %c is error",LineNum,info[1][i]);
                 exit(0);
             }
             OldSymbol.push_back(info[1][i]);
         }
         for(int i = 0;i < info[2].length();i++){
-            if(info[2][i] == ',' || info[2][i] == ';' || info[2][i] == '{' || info[2][i] == '}' || info[2][i] == ' ' || info[2][i] == '*' || info[2][i] == '_'){
-                LOGF("[Line %d],output symbol is error",LineNum);
+            if(info[2][i] == ',' || info[2][i] == ';' || info[2][i] == '{' || info[2][i] == '}' || info[2][i] == ' ' || info[2][i] == '*'){
+                LOGF("[Line %d],output symbol %c is error",LineNum,info[2][i]);
                 exit(0);
             }
             NewSymbol.push_back(info[2][i]);
         }
         for(int i = 0;i < info[3].length();i++){
-            if(info[3][i] != '*' || info[3][i] != 'l' || info[3][i] != 'r'){
-                LOGF("[Line %d],direct's not true",LineNum);
+            if(info[3][i] != '*' && info[3][i] != 'l' && info[3][i] != 'r'){
+                LOGF("[Line %d],direct symbol error %c",LineNum,info[3][i]);
                 exit(0);
             }
             direct.push_back(info[3][i]);

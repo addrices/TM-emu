@@ -26,6 +26,7 @@ private:
     bool Fflag;         //if final state has initial
     int TapeNum;        //TapeNum
     bool Nflag;         //if final 
+    vector<delta> deltas; //transform func
     void SetQ(string line,int LineNum){
         if(Qflag == true){
             LOGF("[Line %d],State has initial",LineNum);
@@ -107,7 +108,7 @@ private:
         }
         B = TempStr[0];
         if(B == ' ' || B == ',' || B == ';' || B == '{' || B == '}' || B == '*'){
-            LOGF("[Line %d],B symbol not support");
+            LOGF("[Line %d],B symbol not support",LineNum);
             exit(0);
         }
         Bflag = true;
@@ -118,7 +119,7 @@ private:
             LOGF("[Line %d],Final state has initial",LineNum);
             exit(0);
         }
-        if(line[0] != '#' || line[1] != 'Q' || line[2] != '=' || line[3] != '{' || line[line.length()-1] != '}'){
+        if(line[0] != '#' || line[1] != 'F' || line[2] != '=' || line[3] != '{' || line[line.length()-1] != '}'){
             LOGF("[Line %d],Syntax error",LineNum);
             exit(0);
         }
@@ -140,7 +141,7 @@ private:
         string TempStr = line.erase(0,3);
         for(int i = 0;i < TempStr.length();i++){
             if(TempStr[i] > '9' || TempStr[i] < '0'){
-                LOGF("[Line %d],only need num man");
+                LOGF("[Line %d],only need num man",LineNum);
                 exit(0);
             }
         }
@@ -149,13 +150,20 @@ private:
         return;
     }
     bool load(char* tm){
-        Qflag == true;
+        Qflag = false;
+        Sflag = false;
+        Gflag = false;
+        Q0flag = false;
+        Bflag = false;
+        Fflag = false;
+        TapeNum = 0;
+        Nflag = false;
 
         ifstream in;
         in.open(tm,ios::in);
         if(!in.is_open()){
             LOGF("NO FILE %s!!!",tm);
-            return false;
+            exit(0);
         }
         string buffer;
         int line = 0;
@@ -164,17 +172,19 @@ private:
             LOGD_DEBUG("line %d %s",line,buffer.c_str());
             
             //erase blank in line head and tail
-            erase_blank(buffer);
+            erase_ht_blank(buffer);
 
-            LOGD_DEBUG("line %d %s",line,buffer.c_str());
+            //erase comment
+            erase_xlast(buffer,";")
 
             //empty line or comment line
             if(buffer[0] == ';' || buffer.empty()){
                 line++;
                 continue;
             }
-            
+
             if(buffer[0] == '#'){
+                erase_blank(buffer);
                 switch(buffer[1]){
                     case 'Q':SetQ(buffer,line);break;
                     case 'S':SetS(buffer,line);break;
@@ -185,7 +195,10 @@ private:
                     case 'N':SetN(buffer,line);break;
                     default: LOGF("[Line %d],# set error",line);
                 }
+            } else {
+                deltas.push_back(delta(buffer,TapeNum,line));
             }
+            line++;
         }
         in.close();
         return true;
@@ -193,9 +206,8 @@ private:
 public:
     TM(char* tm){
         LOGI_DEBUG("tm begin loading %s",tm);
-        if(load(tm) == false){
-            throw MyException("file not exist"); 
-        }
+        load(tm);
+
 
     };
     bool run(char* input);
