@@ -68,4 +68,19 @@ public:
             exit(0);
         }
     }
+// check if this delta func be used
+    bool isMe(string s,vector<char> symbols){
+        for(int i = 0;i < OldSymbol.size();i++){
+            if(symbols[i] != OldSymbol[i]){
+                return false;
+            }
+        }
+        if(s != OldState)
+            return false;
+        else
+            return true;
+    }
+    vector<char> getNewSymbol(){return NewSymbol;}
+    string getNewState(){return NewState;}
+    vector<char> getDirect(){return direct;};  
 };

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 using namespace std;
 #pragma once
 extern bool d_flag, v_flag;
@@ -27,6 +28,11 @@ private:
     int TapeNum;        //TapeNum
     bool Nflag;         //if final 
     vector<delta> deltas; //transform func
+    vector<vector<char>> tapes;
+    int step;
+    string NowState;
+    vector<int> point;
+    vector<int> vector_p;
     void SetQ(string line,int LineNum){
         if(Qflag == true){
             LOGF("[Line %d],State has initial",LineNum);
@@ -175,10 +181,10 @@ private:
             erase_ht_blank(buffer);
 
             //erase comment
-            erase_xlast(buffer,";")
+            erase_xlast(buffer,";");
 
             //empty line or comment line
-            if(buffer[0] == ';' || buffer.empty()){
+            if(buffer.empty()){
                 line++;
                 continue;
             }
@@ -201,14 +207,122 @@ private:
             line++;
         }
         in.close();
+//initial tape
+        for(int i = 0;i < TapeNum;i++){
+            vector<char> a;
+            tapes.push_back(a);
+        }
         return true;
     }
 public:
     TM(char* tm){
         LOGI_DEBUG("tm begin loading %s",tm);
         load(tm);
-
-
     };
-    bool run(char* input);
+    bool print_tape(){
+        cout << "Step   : " << step << endl;
+        for(int i = 0;i < TapeNum;i++){
+            cout << "Index" << i << " : ";
+            bool begin_empty = false;
+            for(int j = 0;j < tapes[i].size();j++){
+                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
+                    begin_empty == true;
+                }
+                if(begin_empty == true){
+                    cout << j << " "; 
+                }
+            }
+            cout << endl;
+            begin_empty = false;
+            for(int j = 0;j < tapes[i].size();j++){
+                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
+                    begin_empty == true;
+                }
+                if(begin_empty == true){
+                    if(j > 99)
+                        cout << tapes[i][j] << "   "; 
+                    else if(j > 9)
+                        cout << tapes[i][j] << "  ";
+                    else
+                        cout << tapes[i][j] << " ";
+                }
+            }
+            cout << endl;
+            begin_empty = false;
+            for(int j = 0;j < tapes[i].size();j++){
+                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
+                    begin_empty == true;
+                }
+                if(begin_empty == true){
+                    if(j == point[i])
+                        cout << "^";
+                    if(j > 99)
+                        cout << "  "; 
+                    else if(j > 9)
+                        cout << " ";
+                    else
+                        cout << "";
+                }
+            }
+            cout << endl;
+        }
+        cout << "---------------------------------------------" << endl;
+    }
+    bool run(string input){
+        NowState = q0;
+        step = 0;
+        for(int i = 0;i < TapeNum;i++){
+            point.push_back(0);
+            vector_p.push_back(0);
+            vector<char> tape;
+            tapes.push_back(tape);
+            for(int j = 0;j < input.length();j++){
+                tapes[i].push_back(input[j]);
+            }
+        }
+        //check input
+        for(int i = 0;i < input.length();i++){
+            if(find(S.begin(),S.end(),input[i]) != S.end()){
+                cerr << "==================== ERR ====================" << endl;
+                cerr << "error: '" << input[i] <<"' was not declared in the set of input symbols" << endl;
+                cerr << "input: " << input << endl;
+                string a  = "       ";
+                for(int j = 0;j < i;j++)
+                    a += " ";
+                a += "^";
+                cerr << a << endl;
+                exit(0);
+            }
+        }
+        //begin runing
+        while(find(F.begin(),F.end(),NowState) != F.end()){
+            extern bool v_flag;
+            for(int i = 0;i < deltas.size();i++){
+                vector<char> NowTape;
+                print_tape();
+                for(int j = 0;j < TapeNum;j++)
+                    NowTape.push_back(tapes[j][i]);
+                if(deltas[i].isMe(NowState,NowTape)){
+                    vector<char> NewSymbol = deltas[i].getNewSymbol();
+                    string NewState = deltas[i].getNewState();
+                    vector<char> Direct = deltas[i].getDirect(); 
+                    for(int j = 0;j < TapeNum;j++){
+                        tapes[j][vector_p[j]] = NewSymbol[j];
+                        switch(Direct[j]){
+                            case 'l': point[j] = point[j]-1; 
+                                      if(vector_p[j] == 0){
+                                          tapes[i].insert(tapes[i].begin(),B);
+                                      }else{
+                                          vector_p[j] = vector_p[j]-1;
+                                      } break;
+                            case 'r': point[j] = point[j]+1;
+                            case '*': break;
+                            default: LOGF("error direct"); break;
+                        }
+                    }
+                    NowState = NewState;
+                }
+            }
+        }
+    }
 };

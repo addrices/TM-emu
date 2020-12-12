@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <iostream>
 using namespace std;
 #define LOGI(format, ...) \
     printf("\33[1;34m[%s,%d,%s] " format "\33[0m\n", \
@@ -12,7 +13,7 @@ using namespace std;
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #define LOGF(format, ...) \
-    printf("\33[1;31m[%s,%d,%s] " format "\33[0m\n", \
+    fprintf(stderr,"\33[1;31m[%s,%d,%s] " format "\33[0m\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #define LOGI_DEBUG(format,...) \
@@ -62,8 +63,10 @@ void erase_blank(string& str){
 }
 
 void erase_xlast(string& str,string a){
-    size_t start = 0;
-    size_t index = str.find_first_of(a,start);
+    size_t index = str.find_first_of(a);
+    if(index != string::npos)
+        str.erase(index,str.length()-index);
+    return;
 }
 
 void erase_ht_blank(string& str){
@@ -84,3 +87,4 @@ void erase_ht_blank(string& str){
     }
     return;
 }
+
