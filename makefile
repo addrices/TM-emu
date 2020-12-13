@@ -6,6 +6,7 @@ TURING = turing
 OUT_DIR = ./build
 
 $(TURING): $(SRC_FILE)
+	mkdir -p $(OUT_DIR)
 	$(CC) $(SRC_FILE) -o $(OUT_DIR)/$(TURING)
 
 debug:$(SRC_FILE)

@@ -1,6 +1,6 @@
 ;This is L1 language L1={a^ib^ja^ib^j|i,j>0}
 ;true: aaabbbaabb
-#Q = {0,cp,cmp,mv,accept,accept2,accept3,accept4,halt_accept,mid_reject,reject,reject2,reject3,reject4,reject5,halt_reject}
+#Q = {0,acp,bcp,cmp,mv,accept,accept2,accept3,accept4,halt_accept,mid_reject,reject,reject2,reject3,reject4,reject5,halt_reject}
 
 ; the finite set of input symbols
 #S = {a,b}

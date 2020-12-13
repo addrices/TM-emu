@@ -31,7 +31,7 @@ using namespace std;
 void help(){
     printf("usage: turing [-v|--verbose] [-h|--help] <tm> <input>\n");
     printf("[-h|--help] print help infomation\n");
-    printf("[-v|--verbose] \n");
+    printf("[-v|--verbose] print turing machine runtime message\n");
     return;
 }
 

@@ -285,12 +285,14 @@ public:
             else
                 tapes[i].push_back(B);
         }
+        if(v_flag == true)
+            cout << "input:" << input << endl;
         //check input
         for(int i = 0;i < input.length();i++){
             if(find(S.begin(),S.end(),input[i]) == S.end()){
-                cerr << "==================== ERR ====================" << endl;
-                cerr << "error: '" << input[i] <<"' was not declared in the set of input symbols" << endl;
-                cerr << "input: " << input << endl;
+                cout << " ==================== ERR ==================== " << endl;
+                cout << "error: '" << input[i] <<"' was not declared in the set of input symbols" << endl;
+                cout << "input: " << input << endl;
                 string a  = "       ";
                 for(int j = 0;j < i;j++)
                     a += " ";
@@ -300,8 +302,10 @@ public:
             }
         }
         //begin runing
-        if(v_flag == true)
+        if(v_flag == true){
+            cout << " ==================== RUN ==================== " << endl;
             print_tape();
+        }
         while(find(F.begin(),F.end(),NowState) == F.end()){
             vector<char> NowTape;
             for(int j = 0;j < TapeNum;j++)
@@ -340,7 +344,8 @@ public:
                                           }
                                       } point[j]++; break;
                             case '*': break;
-                            default: LOGF("error direct"); break;
+                        default: LOGF("==================== ERR ====================");
+                                 LOGF("error direct"); break;
                         }
                     }
                     NowState = NewState;
@@ -349,6 +354,7 @@ public:
                     break;
                 }
                 if(i == deltas.size()-1){
+                    LOGF("==================== ERR ====================");
                     LOGF("no delta func can use!");
                     exit(0);
                 }
@@ -360,7 +366,9 @@ public:
         for(int i = 0;i < tapes[0].size();i++){
             cout << tapes[0][i];
         }
-        cout << endl << " ==================== END ==================== " << endl;
+        cout << endl;
+        if(v_flag == true)
+            cout << " ==================== END ==================== " << endl;
         return;
     }
 };
