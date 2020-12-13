@@ -5,7 +5,9 @@
 #include <vector>
 #include <sstream>
 #include <stdlib.h>
+#include <algorithm>
 using namespace std;
+#pragma once
 
 class delta{
 private:
@@ -17,7 +19,7 @@ private:
     int TapeNum;
 public:
 //input is initial line, Tape num, LineNum for local syntax error
-    delta(string line,int num,int LineNum){
+    delta(string line,int num,int LineNum,vector<string> Q,vector<char> G){
         TapeNum = num;
         vector<string> info = split(line," ");
 //make sure info.size == 5
@@ -30,10 +32,18 @@ public:
         }
 
 // read delta function's parameters
+        if(find(Q.begin(),Q.end(),info[0]) == Q.end()){
+            LOGF("[Line %d], find state [%s] not in Q",LineNum,info[0].c_str());
+            exit(0);
+        }
         OldState = info[0];
         for(int i = 0;i < info[1].length();i++){
             if(info[1][i] == ',' || info[1][i] == ';' || info[1][i] == '{' || info[1][i] == '}' || info[1][i] == ' ' || info[1][i] == '*'){
                 LOGF("[Line %d],input symbol %c is error",LineNum,info[1][i]);
+                exit(0);
+            }
+            if(find(G.begin(),G.end(),info[1][i]) == G.end()){
+                LOGF("[Line %d],input symbol %c not defined",LineNum,info[1][i]);
                 exit(0);
             }
             OldSymbol.push_back(info[1][i]);
@@ -41,6 +51,10 @@ public:
         for(int i = 0;i < info[2].length();i++){
             if(info[2][i] == ',' || info[2][i] == ';' || info[2][i] == '{' || info[2][i] == '}' || info[2][i] == ' ' || info[2][i] == '*'){
                 LOGF("[Line %d],output symbol %c is error",LineNum,info[2][i]);
+                exit(0);
+            }
+            if(find(G.begin(),G.end(),info[2][i]) == G.end()){
+                LOGF("[Line %d],output symbol %c not defined",LineNum,info[2][i]);
                 exit(0);
             }
             NewSymbol.push_back(info[2][i]);

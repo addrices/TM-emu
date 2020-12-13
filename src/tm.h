@@ -206,7 +206,7 @@ private:
                     default: LOGF("[Line %d],# set error",line);
                 }
             } else {
-                deltas.push_back(delta(buffer,TapeNum,line));
+                deltas.push_back(delta(buffer,TapeNum,line,Q,G));
             }
             line++;
         }
