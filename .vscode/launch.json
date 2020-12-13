@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "/home/addrice/work/TM-emu/build/turing_g",
-            "args": ["-d","./programs/demo.tm","input"],
+            "args": ["-d","-v","./programs/demo.tm","1001001"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

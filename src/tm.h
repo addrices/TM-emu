@@ -28,11 +28,11 @@ private:
     int TapeNum;        //TapeNum
     bool Nflag;         //if final 
     vector<delta> deltas; //transform func
-    vector<vector<char>> tapes;
     int step;
     string NowState;
+    vector<vector<char>> tapes;
     vector<int> point;
-    vector<int> vector_p;
+    vector<int> begin;
     void SetQ(string line,int LineNum){
         if(Qflag == true){
             LOGF("[Line %d],State has initial",LineNum);
@@ -224,65 +224,75 @@ public:
         for(int i = 0;i < TapeNum;i++){
             cout << "Index" << i << " : ";
             bool begin_empty = false;
-            for(int j = 0;j < tapes[i].size();j++){
-                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
-                    begin_empty == true;
-                }
-                if(begin_empty == true){
+            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+                int vector_point = j-begin[i];
+                if(j < 0)
+                    cout << -j << " ";
+                else
                     cout << j << " "; 
-                }
             }
             cout << endl;
-            begin_empty = false;
-            for(int j = 0;j < tapes[i].size();j++){
-                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
-                    begin_empty == true;
-                }
-                if(begin_empty == true){
-                    if(j > 99)
-                        cout << tapes[i][j] << "   "; 
-                    else if(j > 9)
-                        cout << tapes[i][j] << "  ";
-                    else
-                        cout << tapes[i][j] << " ";
-                }
+
+            cout << "Tape" << i << "  : ";
+            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+                int vector_point = j-begin[i];
+                int j_abs = j>0?j:-j;
+                if(j_abs > 99)
+                    cout << tapes[i][vector_point] << "   "; 
+                else if(j_abs > 9)
+                    cout << tapes[i][vector_point] << "  ";
+                else
+                    cout << tapes[i][vector_point] << " ";
             }
             cout << endl;
-            begin_empty = false;
-            for(int j = 0;j < tapes[i].size();j++){
-                if(begin_empty == false && tapes[i][j] != B && j < point[i]){
-                    begin_empty == true;
-                }
+
+            cout << "Head" << i << "  : ";
+            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+                int vector_point = j-begin[i];
+                int j_abs = j>0?j:-j;
                 if(begin_empty == true){
-                    if(j == point[i])
+                    if(j == point[i]){
                         cout << "^";
-                    if(j > 99)
-                        cout << "  "; 
-                    else if(j > 9)
-                        cout << " ";
-                    else
-                        cout << "";
+                        if(j_abs > 99)
+                            cout << "   "; 
+                        else if(j_abs > 9)
+                            cout << "  ";
+                        else
+                            cout << " ";
+                    }
+                    else{
+                        if(j_abs > 99)
+                            cout << "    "; 
+                        else if(j > 9)
+                            cout << "   ";
+                        else
+                            cout << "  ";                        
+                    }
                 }
             }
             cout << endl;
         }
+        step++;
+        cout << "State  : " << NowState << endl;
         cout << "---------------------------------------------" << endl;
     }
     bool run(string input){
         NowState = q0;
         step = 0;
+        extern bool v_flag;
         for(int i = 0;i < TapeNum;i++){
             point.push_back(0);
             vector_p.push_back(0);
             vector<char> tape;
-            tapes.push_back(tape);
-            for(int j = 0;j < input.length();j++){
-                tapes[i].push_back(input[j]);
-            }
+            if(i == 0)
+                for(int j = 0;j < input.length();j++)
+                    tapes[i].push_back(input[j]);
+            else
+                tapes[i].push_back(B);
         }
         //check input
         for(int i = 0;i < input.length();i++){
-            if(find(S.begin(),S.end(),input[i]) != S.end()){
+            if(find(S.begin(),S.end(),input[i]) == S.end()){
                 cerr << "==================== ERR ====================" << endl;
                 cerr << "error: '" << input[i] <<"' was not declared in the set of input symbols" << endl;
                 cerr << "input: " << input << endl;
@@ -295,13 +305,13 @@ public:
             }
         }
         //begin runing
-        while(find(F.begin(),F.end(),NowState) != F.end()){
-            extern bool v_flag;
-            for(int i = 0;i < deltas.size();i++){
-                vector<char> NowTape;
+        while(find(F.begin(),F.end(),NowState) == F.end()){
+            if(v_flag == true)
                 print_tape();
-                for(int j = 0;j < TapeNum;j++)
-                    NowTape.push_back(tapes[j][i]);
+            vector<char> NowTape;
+            for(int j = 0;j < TapeNum;j++)
+                NowTape.push_back(tapes[j][vector_p[j]]);
+            for(int i = 0;i < deltas.size();i++){
                 if(deltas[i].isMe(NowState,NowTape)){
                     vector<char> NewSymbol = deltas[i].getNewSymbol();
                     string NewState = deltas[i].getNewState();
@@ -316,11 +326,16 @@ public:
                                           vector_p[j] = vector_p[j]-1;
                                       } break;
                             case 'r': point[j] = point[j]+1;
+                                      if(vector_p[j] == tapes[i].size()-1){
+                                          tapes[i].push_back(B);
+                                      }
+                                      vector_p[j] = vector_p[j]+1;
                             case '*': break;
                             default: LOGF("error direct"); break;
                         }
                     }
                     NowState = NewState;
+                    break;
                 }
             }
         }

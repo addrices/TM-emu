@@ -3,7 +3,7 @@
 #include "global.h"
 #include "tm.h"
 #include "error.h"
-
+using namespace std;
 int main(int argc,char *argv[]){
     init_machine(argc,argv);
     extern bool h_flag;
@@ -13,12 +13,8 @@ int main(int argc,char *argv[]){
         help();
         return 0;
     }
-    try{
-        TM myTM(tm);
-    } catch (MyException e){
-        e.printme();
-        return 0;
-    }
-    
+    TM myTM(tm);
+    string instr = input;
+    myTM.run(instr);
     return 0;
 }
