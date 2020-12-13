@@ -25,8 +25,8 @@ using namespace std;
 #define LOGF_DEBUG(format,...) \
     if(d_flag == true) LOGF(format,## __VA_ARGS__)
 
-#define max(x,y) (x)>(y)?(x):(y)
-#define min(x,y) (x)>(y)?(x):(y)
+// #define max(x,y) (x)>(y)?(x):(y)
+// #define min(x,y) (x)>(y)?(x):(y)
 
 void help(){
     printf("usage: turing [-v|--verbose] [-h|--help] <tm> <input>\n");

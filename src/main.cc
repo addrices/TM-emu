@@ -16,5 +16,6 @@ int main(int argc,char *argv[]){
     TM myTM(tm);
     string instr = input;
     myTM.run(instr);
+    myTM.PrintRes();
     return 0;
 }

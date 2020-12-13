@@ -32,7 +32,7 @@ int init_machine(int argc,char *argv[]){
             case 'h': h_flag = true; break;
             case 'v': v_flag = true; break;
             case 'd': d_flag = true; break;
-            default: printf("no config [%c]",ch);
+            default: LOGF("no config"); exit(0);
         }
     }
     return 0;

@@ -152,6 +152,10 @@ private:
             }
         }
         TapeNum = atoi(TempStr.c_str());
+        if(TapeNum < 1){
+            LOGF("TapeNum must great than 0");
+            exit(0);
+        }
         Nflag = true;
         return;
     }
@@ -172,7 +176,7 @@ private:
             exit(0);
         }
         string buffer;
-        int line = 0;
+        int line = 1;
         while(!in.eof()){
             getline(in,buffer);
             LOGD_DEBUG("line %d %s",line,buffer.c_str());
@@ -223,8 +227,7 @@ public:
         cout << "Step   : " << step << endl;
         for(int i = 0;i < TapeNum;i++){
             cout << "Index" << i << " : ";
-            bool begin_empty = false;
-            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+            for(int j = begin[i];j < (int)tapes[i].size()+begin[i];j++){
                 int vector_point = j-begin[i];
                 if(j < 0)
                     cout << -j << " ";
@@ -234,41 +237,33 @@ public:
             cout << endl;
 
             cout << "Tape" << i << "  : ";
-            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+            for(int j = begin[i];j < (int)tapes[i].size()+begin[i];j++){
                 int vector_point = j-begin[i];
                 int j_abs = j>0?j:-j;
+                cout << tapes[i][vector_point];
                 if(j_abs > 99)
-                    cout << tapes[i][vector_point] << "   "; 
+                    cout << "   "; 
                 else if(j_abs > 9)
-                    cout << tapes[i][vector_point] << "  ";
+                    cout << "  ";
                 else
-                    cout << tapes[i][vector_point] << " ";
+                    cout << " "; 
             }
             cout << endl;
 
             cout << "Head" << i << "  : ";
-            for(int j = begin[i];j < tapes[i].size()-begin[i];j++){
+            for(int j = begin[i];j < (int)tapes[i].size()+begin[i];j++){
                 int vector_point = j-begin[i];
                 int j_abs = j>0?j:-j;
-                if(begin_empty == true){
-                    if(j == point[i]){
-                        cout << "^";
-                        if(j_abs > 99)
-                            cout << "   "; 
-                        else if(j_abs > 9)
-                            cout << "  ";
-                        else
-                            cout << " ";
-                    }
-                    else{
-                        if(j_abs > 99)
-                            cout << "    "; 
-                        else if(j > 9)
-                            cout << "   ";
-                        else
-                            cout << "  ";                        
-                    }
-                }
+                if(j == point[i])
+                    cout << "^";
+                else
+                    cout << " ";
+                if(j_abs > 99)
+                    cout << "   "; 
+                else if(j_abs > 9)
+                    cout << "  ";
+                else
+                    cout << " ";
             }
             cout << endl;
         }
@@ -282,7 +277,7 @@ public:
         extern bool v_flag;
         for(int i = 0;i < TapeNum;i++){
             point.push_back(0);
-            vector_p.push_back(0);
+            begin.push_back(0);
             vector<char> tape;
             if(i == 0)
                 for(int j = 0;j < input.length();j++)
@@ -305,39 +300,67 @@ public:
             }
         }
         //begin runing
+        if(v_flag == true)
+            print_tape();
         while(find(F.begin(),F.end(),NowState) == F.end()){
-            if(v_flag == true)
-                print_tape();
             vector<char> NowTape;
             for(int j = 0;j < TapeNum;j++)
-                NowTape.push_back(tapes[j][vector_p[j]]);
+                NowTape.push_back(tapes[j][point[j]-begin[j]]);
             for(int i = 0;i < deltas.size();i++){
                 if(deltas[i].isMe(NowState,NowTape)){
                     vector<char> NewSymbol = deltas[i].getNewSymbol();
                     string NewState = deltas[i].getNewState();
                     vector<char> Direct = deltas[i].getDirect(); 
                     for(int j = 0;j < TapeNum;j++){
-                        tapes[j][vector_p[j]] = NewSymbol[j];
+                        tapes[j][point[j]-begin[j]] = NewSymbol[j];
                         switch(Direct[j]){
-                            case 'l': point[j] = point[j]-1; 
-                                      if(vector_p[j] == 0){
-                                          tapes[i].insert(tapes[i].begin(),B);
-                                      }else{
-                                          vector_p[j] = vector_p[j]-1;
-                                      } break;
-                            case 'r': point[j] = point[j]+1;
-                                      if(vector_p[j] == tapes[i].size()-1){
-                                          tapes[i].push_back(B);
-                                      }
-                                      vector_p[j] = vector_p[j]+1;
+                            case 'l': if(point[j] - begin[j] == tapes[j].size()-1 && point[j] == begin[j]){
+                                          if(tapes[j][point[j]-begin[j]] != B)
+                                            tapes[j].insert(tapes[j].begin(),B);
+                                          begin[j]--;
+                                      }else if(point[j] == begin[j]){
+                                          tapes[j].insert(tapes[j].begin(),B);
+                                          begin[j]--;
+                                      }else if(point[j]-begin[j] == tapes[j].size()-1){
+                                          if(tapes[j][point[j]-begin[j]] == B){
+                                               tapes[j].pop_back();
+                                          }
+                                      } point[j]--; break;
+                            case 'r': if(point[j] - begin[j] == tapes[j].size()-1 && point[j] == begin[j]){
+                                          if(tapes[j][point[j]-begin[j]] != B)
+                                              tapes[j].push_back(B);
+                                          else
+                                            begin[j]++;
+                                      }else if(point[j]-begin[j] == tapes[j].size()-1){
+                                          tapes[j].push_back(B);
+                                      }else if(point[j] == begin[j]){
+                                          if(tapes[j][point[j]-begin[j]] == B){
+                                               tapes[j].erase(tapes[j].begin());
+                                               begin[j]++;
+                                          }
+                                      } point[j]++; break;
                             case '*': break;
                             default: LOGF("error direct"); break;
                         }
                     }
                     NowState = NewState;
+                    if(v_flag == true)
+                        print_tape();
                     break;
+                }
+                if(i == deltas.size()-1){
+                    LOGF("no delta func can use!");
+                    exit(0);
                 }
             }
         }
+    }
+    void PrintRes(){
+        cout << "Result: ";
+        for(int i = 0;i < tapes[0].size();i++){
+            cout << tapes[0][i];
+        }
+        cout << endl << " ==================== END ==================== " << endl;
+        return;
     }
 };
